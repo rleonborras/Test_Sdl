@@ -4,17 +4,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <time.h>
-#define BLUE			0x00,0x00,0xFF
-#define RED				0xFF,0x00,0x00
-#define BLACK           0x00,0x00,0x00
-#define WHITE           0xFF,0xFF,0xFF
-#define YELLOW          0xFF,0xFF,0x00
-#define GREEN           0x00,0xFF,0x00
-#define MAGENTA         0xFF,0x00,0xFF
-#define CYAN            0x00,0xFF,0xFF
-#define PINK            0xFF,0xAF,0xAF
-#define BROWN           0x60,0x30,0x00
-#define ORANGE          0xFF,0x80,0x00
+#include "Colors.h"
+
 #pragma comment(lib,"SDL/libx86/SDL2.lib")
 #pragma comment(lib,"SDL/libx86/SDL2main.lib")
 
@@ -69,6 +60,7 @@ int main(int argc, char* argv[]) {
 	bool collx = false;
 	bool colly = false;
 	int colorVar = 0;
+	int nosame;
 	SDL_Event e;
 	Uint32 rectColor;
 	Uint32 rectColorPickup;
@@ -117,7 +109,11 @@ int main(int argc, char* argv[]) {
 						rectColor = rectColorPickup;
 						rectPickup.x = rand() % 500 + 20;
 						rectPickup.y = rand() % 300 + 20;
+						nosame = colorVar;
 						colorVar = rand() % 10;
+						while (colorVar == nosame) {
+							colorVar = rand() % 10;
+						}
 						if (colorVar == 0) {
 							rectColorPickup = SDL_MapRGB(screenSurface->format, RED);
 						}
@@ -170,7 +166,6 @@ int main(int argc, char* argv[]) {
 				rect.x++;
 				collx = false;
 			}
-
 
 			// The Y direction update
 			if (rect.y < 330 && (colly == false)) {
