@@ -8,14 +8,15 @@
 #include "Colors.h"
 #pragma comment(lib,"SDL/libx86/SDL2.lib")
 #pragma comment(lib,"SDL/libx86/SDL2main.lib")
-//#pragma comment(lib,"SDL_Image/libx86/SDL2_image.lib")
+#pragma comment(lib,"SDL_image/libx86/SDL2_image.lib")
+
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
 SDL_Window* window = nullptr;
 SDL_Surface* screenSurface= nullptr ;
-
+SDL_Renderer* Main_Renderer = nullptr;
 
 bool init() {
 
@@ -37,6 +38,8 @@ bool init() {
 		else {
 			//Getting the windows.
 			screenSurface = SDL_GetWindowSurface(window);
+			Main_Renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
 		}
 		
 	}
@@ -64,10 +67,11 @@ bool Hit(SDL_Rect Shoot, SDL_Rect Objective) {
 
 int main(int argc, char* argv[]) {
 
-
+	SDL_Texture* Background_Tx;
+	SDL_Texture* Main_Ship;
 	int Velocity = 3;
 	srand(9);
-	float timeCharging=0;
+	float timeCharging=0.0;
 	bool ChargeShot = false;
 	bool Charged = false;
 	bool ePress = false;
@@ -148,6 +152,7 @@ int main(int argc, char* argv[]) {
 						break;
 					case SDLK_e:
 						ePress = true;
+						timeCharging += 0.1;
 						break;
 					}
 				}
@@ -171,7 +176,7 @@ int main(int argc, char* argv[]) {
 						break;
 					case SDLK_e:
 						ePress = false;
-						timeCharging += 0.1;
+						
 					default:
 						break;
 					}
@@ -218,7 +223,8 @@ int main(int argc, char* argv[]) {
 					Shooting = false;
 			}
 			if (ChargeShot&&ePress) {	
-			
+				Shoot.w = 30;
+				Shoot.h = 5;
 				Shoot.x = rect.x + rect.w;
 				Shoot.y = rect.y + (rect.h / 2);
 				if(!Charged||Shoot.w<=70||Shoot.h<=70) {
@@ -240,7 +246,7 @@ int main(int argc, char* argv[]) {
 			}
 			else {
 			
-				timeCharging = 0;
+				timeCharging = 0.0;
 			
 			}
 	
