@@ -1,27 +1,20 @@
 
 #include "SDL\include\SDL.h"
 #include <iostream>
-#include <time.h>
-#define BLUE			0x00,0x00,0xFF
-#define RED				0xFF,0x00,0x00
-#define BLACK           0x00,0x00,0x00
-#define WHITE           0xFF,0xFF,0xFF
-#define YELLOW          0xFF,0xFF,0x00
-#define GREEN           0x00,0xFF,0x00
-#define MAGENTA         0xFF,0x00,0xFF
-#define CYAN            0x00,0xFF,0xFF
-#define PINK            0xFF,0xAF,0xAF
-#define BROWN           0x60,0x30,0x00
-#define ORANGE          0xFF,0x80,0x00
+#include "SDL_image\include\SDL_image.h"
+
+
+
+#include "Colors.h"
 #pragma comment(lib,"SDL/libx86/SDL2.lib")
 #pragma comment(lib,"SDL/libx86/SDL2main.lib")
+//#pragma comment(lib,"SDL_Image/libx86/SDL2_image.lib")
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
 SDL_Window* window = nullptr;
 SDL_Surface* screenSurface= nullptr ;
-using namespace std;
 
 
 bool init() {
@@ -33,25 +26,22 @@ bool init() {
 
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		cout << "This doesn't work" << endl;
 		succes = false;
 	}
 	else {
 		//Create Window(this only creates the "marco" of the windows, here we cannot draw anything)
 		window = SDL_CreateWindow("AWESOME GAME", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT,SDL_WINDOW_SHOWN);
 		if (window == NULL) {
-			cout << "Window could not be created! SDL_ERROR: " << SDL_GetError() << endl;
 			succes = false;
 		}
 		else {
 			//Getting the windows.
 			screenSurface = SDL_GetWindowSurface(window);
 		}
-
+		
 	}
 	return succes;
 }
-
 
 void close() {
 	//Destroy window
@@ -73,8 +63,10 @@ bool Hit(SDL_Rect Shoot, SDL_Rect Objective) {
 }
 
 int main(int argc, char* argv[]) {
-	int Velocity = 1;
-	srand(time(NULL));
+
+
+	int Velocity = 3;
+	srand(9);
 	float timeCharging=0;
 	bool ChargeShot = false;
 	bool Charged = false;
@@ -96,36 +88,35 @@ int main(int argc, char* argv[]) {
 	SDL_Rect rect;
 	SDL_Rect rectPickup;
 	SDL_Rect Shoot;
-	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
+
 	rect.x = 200;
 	rect.y = 120+50;
 	rect.w = 40;
 	rect.h = 40;
 	Shoot.w = 30;
 	Shoot.h= 5;
-	rectPickup.x=rand()%641; //40
-	rectPickup.y = rand() % 480; //40
+	rectPickup.x=rand()%SCREEN_WIDTH; //40
+	rectPickup.y = rand() % SCREEN_HEIGHT; //40
 	rectPickup.w = 30;
 	rectPickup.h = 30;
+
 	//handle events on queue
 
 		//start up SDL and create a window
-	if (!init()) {
-		cout << "Failed to initialize" << endl;
-	}
-	else {
+	
+	init();
 
 		//fill the surface blue
 		SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, BLUE));
 		//UPdate the surface ( we have to do this every time we want to draw something in screen)
-		SDL_UpdateWindowSurface(window);
+
 		rectColor = SDL_MapRGB(screenSurface->format, RED);
 		rectColorPickup = SDL_MapRGB(screenSurface->format, GREEN);
 		ShootColor = SDL_MapRGB(screenSurface->format, GREEN);
 		SDL_FillRect(screenSurface, &Shoot, ShootColor);
 		SDL_FillRect(screenSurface, &rect, rectColor);
 
-	}
+	
 
 	while(!quit){
 
@@ -208,6 +199,8 @@ int main(int argc, char* argv[]) {
 					Shoot.x = rect.x + rect.w;
 					Shoot.y = rect.y + (rect.h / 2);
 					ChargeShot = true;
+					Shoot.w = 30;
+					Shoot.h = 5;
 				}
 
 			if (Shooting&&!ePress) {
@@ -219,30 +212,31 @@ int main(int argc, char* argv[]) {
 						rectPickup.x = rand() % 541 + 100; //40
 						rectPickup.y = rand() % 380 + 100; //40
 					}
-					SDL_Delay(0.2);
+
 				}
 				else
 					Shooting = false;
 			}
 			if (ChargeShot&&ePress) {	
+			
 				Shoot.x = rect.x + rect.w;
 				Shoot.y = rect.y + (rect.h / 2);
 				if(!Charged||Shoot.w<=70||Shoot.h<=70) {
 					Shoot.w += 1;
 					Shoot.h += 2;
-					SDL_Delay(5);
+	
 					timeCharging += 0.1;
 					if (timeCharging >= 0.2)
 						Charged = true;
 				}
 			}
 			if (Charged||Shoot.x<SCREEN_WIDTH) {
-				Shoot.x += 5;
+				Shoot.x += 25;
 				if (Hit(Shoot, rectPickup) == true) {
 					rectPickup.x = rand() % 541 + 100; //40
 					rectPickup.y = rand() % 380 + 100; //40
 				}
-				SDL_Delay(0.1);
+			
 			}
 			else {
 			
@@ -257,7 +251,7 @@ int main(int argc, char* argv[]) {
 			SDL_FillRect(screenSurface, &rectPickup, rectColorPickup);
 			SDL_FillRect(screenSurface, &Shoot, ShootColor);
 			SDL_UpdateWindowSurface(window);
-			SDL_Delay(1);
+			SDL_Delay(10);
 			
 	}	
 	close();
