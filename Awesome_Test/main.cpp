@@ -9,7 +9,7 @@
 #pragma comment(lib,"SDL/libx86/SDL2.lib")
 #pragma comment(lib,"SDL/libx86/SDL2main.lib")
 #pragma comment(lib,"SDL_image/libx86/SDL2_image.lib")
-#define SHAPE_SIZE 120
+#define SHAPE_SIZE 100
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -20,6 +20,11 @@ SDL_Renderer* Main_Renderer=nullptr;
 SDL_Texture* Background_Texture=nullptr;
 SDL_Texture* Player_shipTexture = nullptr;
 SDL_Texture* Enemy_shipTexture = nullptr;
+SDL_Texture* Shoot_Texture = nullptr;
+
+
+
+
 
 SDL_Texture* loadTexture(std::string path){
 
@@ -41,7 +46,8 @@ bool loadMedia() {
 	Background_Texture = loadTexture("Background.png");
 	Player_shipTexture = loadTexture("Main_Ship.png");
 	Enemy_shipTexture = loadTexture("Enemy_Ship.png");
-	if (Background_Texture == NULL || Player_shipTexture == NULL || Enemy_shipTexture == NULL) {
+	Shoot_Texture = loadTexture("Shoot_2.png");
+	if (Background_Texture == NULL || Player_shipTexture == NULL || Enemy_shipTexture == NULL||Shoot_Texture==NULL) {
 	succes = false;
 	}
 	return succes;
@@ -65,7 +71,6 @@ bool init() {
 		succes = false;
 		}
 		//Getting the windows.
-		
 		Main_Renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
 	}
@@ -105,22 +110,25 @@ int main(int argc, char* argv[]) {
 	SDL_Rect SrcR;
 	SDL_Rect DestR;
 	SDL_Rect Ship;
-
+	SDL_Rect Shoot;
+	Shoot.w = SHAPE_SIZE;
+	Shoot.h = SHAPE_SIZE;
+	Shoot.x = 200;
+	Shoot.y = 200;
 	SrcR.x = 0;
 	SrcR.y = 0;
 	SrcR.w = SHAPE_SIZE;
 	SrcR.h = SHAPE_SIZE;
 
-	DestR.x = 640 / 2 - SHAPE_SIZE / 2;
-	DestR.y = 580 / 2 - SHAPE_SIZE / 2;
-	DestR.w = SHAPE_SIZE;
-	DestR.h = SHAPE_SIZE;
+	Ship.x = 200;
+	Ship.y = 200;
+	Ship.w = SHAPE_SIZE;
+	Ship.h = SHAPE_SIZE;
 
 
-	//------LOADING IMAGES-------------//
 
 
-	int Velocity = 3;
+	int Velocity = 1;
 	srand(9);
 	float timeCharging=0.0;
 	bool ChargeShot = false;
@@ -137,16 +145,12 @@ int main(int argc, char* argv[]) {
 	bool colly = false;
 	int colorVar = 0;
 	SDL_Event e;
-	Uint32 rectColor;
-	Uint32 rectColorPickup;
-	Uint32 ShootColor;
-
 
 	//start up SDL and create a window
 
 	init();
 	loadMedia();
-	if (!loadMedia) {
+	if (!loadMedia||!init) {
 		quit = true;
 	}
 	while(!quit){
@@ -158,7 +162,7 @@ int main(int argc, char* argv[]) {
 					quit = true;
 				}
 
-				/*if (e.type == SDL_KEYDOWN) {
+				if (e.type == SDL_KEYDOWN) {
 
 					switch (e.key.keysym.sym)
 					{
@@ -179,7 +183,6 @@ int main(int argc, char* argv[]) {
 						break;
 					case SDLK_e:
 						ePress = true;
-						timeCharging += 0.1;
 						break;
 					}
 				}
@@ -210,45 +213,45 @@ int main(int argc, char* argv[]) {
 				}
 			}
 		
-				if (Left&&(rect.x>=0)) {
-					rect.x -= Velocity;
+				if (Left&&(Ship.x>=0)) {
+					Ship.x -= Velocity;
 				}
-				if (Right&&(rect.x<=SCREEN_WIDTH - rect.w)) {
-					rect.x += Velocity;
+				if (Right&&(Ship.x<=SCREEN_WIDTH - Ship.w)) {
+					Ship.x += Velocity;
 				}
-				if (Up&&(rect.y>=0)) {
-					rect.y -= Velocity;
+				if (Up&&(Ship.y>=0)) {
+					Ship.y -= Velocity;
 				}
-				if (Down&&(rect.y<=SCREEN_HEIGHT-rect.h)) {
-					rect.y += Velocity;
+				if (Down&&(Ship.y<=SCREEN_HEIGHT-Ship.h)) {
+					Ship.y += Velocity;
 				}
 				if (Space && !Shooting) {
-					Shoot.x = rect.x + rect.w;
-					Shoot.y = rect.y + (rect.h / 2);
+					Shoot.x = Ship.x + Ship.w;
+					Shoot.y = Ship.y + (Ship.h / 2);
 					Shooting = true;
 				}
-				if (ePress&!ChargeShot) {
+
+				/*		if (ePress&!ChargeShot) {
 					Shoot.x = rect.x + rect.w;
 					Shoot.y = rect.y + (rect.h / 2);
 					ChargeShot = true;
 					Shoot.w = 30;
 					Shoot.h = 5;
 				}
+			*/
+			if (Shooting) {
 
-			if (Shooting&&!ePress) {
-				Shoot.w = 30;
-				Shoot.h = 5;
 				if (Shoot.x < SCREEN_WIDTH) {
 					Shoot.x += 5;
-					if (Hit(Shoot, rectPickup) == true) {
-						rectPickup.x = rand() % 541 + 100; //40
-						rectPickup.y = rand() % 380 + 100; //40
-					}
+					//if (Hit(Shoot, rectPickup) == true) {
+					//	rectPickup.x = rand() % 541 + 100; //40
+					//	rectPickup.y = rand() % 380 + 100; //40
+					//}
 
 				}
 				else
 					Shooting = false;
-			}
+			}/*
 			if (ChargeShot&&ePress) {	
 
 				Shoot.x = rect.x + rect.w;
@@ -272,16 +275,18 @@ int main(int argc, char* argv[]) {
 			}
 			else {
 			
-				timeCharging = 0.0;*/
+				timeCharging = 0.0;
 			
-			}
+			}*/
 		
 			//Updating the windows surface.
 			SDL_RenderClear(Main_Renderer);
 			SDL_RenderCopy(Main_Renderer, Background_Texture, NULL, NULL);
-			SDL_RenderCopy(Main_Renderer, Player_shipTexture,&SrcR,&DestR);
+			SDL_RenderCopy(Main_Renderer,Player_shipTexture,NULL, &Ship);
+			SDL_RenderCopy(Main_Renderer, Player_shipTexture, NULL, &Shoot);
 			SDL_RenderPresent(Main_Renderer);
-			SDL_Delay(0.1);
+			SDL_Delay(3);
+
 	}	
 	close();
 
