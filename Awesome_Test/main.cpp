@@ -15,7 +15,6 @@ const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
 SDL_Window* window = nullptr;
-SDL_Surface* screenSurface= nullptr ;
 SDL_Renderer* Main_Renderer=nullptr;
 SDL_Texture* Background_Texture=nullptr;
 SDL_Texture* Player_shipTexture = nullptr;
@@ -42,11 +41,11 @@ SDL_Texture* loadTexture(std::string path){
 
 bool loadMedia() {
 	bool succes = true;
-
+	Shoot_Texture = loadTexture("Background2.png");
 	Background_Texture = loadTexture("Background.png");
 	Player_shipTexture = loadTexture("Main_Ship.png");
 	Enemy_shipTexture = loadTexture("Enemy_Ship.png");
-	Shoot_Texture = loadTexture("Shoot_2.png");
+
 	if (Background_Texture == NULL || Player_shipTexture == NULL || Enemy_shipTexture == NULL||Shoot_Texture==NULL) {
 	succes = false;
 	}
@@ -106,19 +105,13 @@ bool Hit(SDL_Rect Shoot, SDL_Rect Objective) {
 
 int main(int argc, char* argv[]) {
 
-
-	SDL_Rect SrcR;
-	SDL_Rect DestR;
 	SDL_Rect Ship;
 	SDL_Rect Shoot;
 	Shoot.w = SHAPE_SIZE;
 	Shoot.h = SHAPE_SIZE;
 	Shoot.x = 200;
 	Shoot.y = 200;
-	SrcR.x = 0;
-	SrcR.y = 0;
-	SrcR.w = SHAPE_SIZE;
-	SrcR.h = SHAPE_SIZE;
+	
 
 	Ship.x = 200;
 	Ship.y = 200;
@@ -144,7 +137,11 @@ int main(int argc, char* argv[]) {
 	bool collx = false;
 	bool colly = false;
 	int colorVar = 0;
+
+
 	SDL_Event e;
+
+
 
 	//start up SDL and create a window
 
