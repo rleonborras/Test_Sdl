@@ -9,47 +9,81 @@
 #pragma comment(lib,"SDL/libx86/SDL2.lib")
 #pragma comment(lib,"SDL/libx86/SDL2main.lib")
 #pragma comment(lib,"SDL_image/libx86/SDL2_image.lib")
-
+#define SHAPE_SIZE 120
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
 SDL_Window* window = nullptr;
 SDL_Surface* screenSurface= nullptr ;
-SDL_Renderer* Main_Renderer = nullptr;
+SDL_Renderer* Main_Renderer=nullptr;
+SDL_Texture* Background_Texture=nullptr;
+SDL_Texture* Player_shipTexture = nullptr;
+SDL_Texture* Enemy_shipTexture = nullptr;
+
+SDL_Texture* loadTexture(std::string path){
+
+	//Final Texture
+	SDL_Texture* newTexture = nullptr;
+
+	//Load image from path
+	SDL_Surface* loadedSurface = IMG_Load(path.c_str());
+	newTexture = SDL_CreateTextureFromSurface(Main_Renderer, loadedSurface);
+	//Delete the old loaded surface;
+	SDL_FreeSurface(loadedSurface);
+
+	return newTexture;
+}
+
+bool loadMedia() {
+	bool succes = true;
+
+	Background_Texture = loadTexture("Background.png");
+	Player_shipTexture = loadTexture("Main_Ship.png");
+	Enemy_shipTexture = loadTexture("Enemy_Ship.png");
+	if (Background_Texture == NULL || Player_shipTexture == NULL || Enemy_shipTexture == NULL) {
+	succes = false;
+	}
+	return succes;
+}
 
 bool init() {
 
 	//initialization variable
 	bool succes = true;
-
+	
 	//initialize SDL
+	SDL_Init(SDL_INIT_VIDEO);
 
-
+	//Create Window(this only creates the "marco" of the windows, here we cannot draw anything)
+	window = SDL_CreateWindow("AWESOME GAME", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		succes = false;
 	}
 	else {
-		//Create Window(this only creates the "marco" of the windows, here we cannot draw anything)
-		window = SDL_CreateWindow("AWESOME GAME", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT,SDL_WINDOW_SHOWN);
-		if (window == NULL) {
-			succes = false;
+	if (window == NULL) {
+		succes = false;
 		}
-		else {
-			//Getting the windows.
-			screenSurface = SDL_GetWindowSurface(window);
-			Main_Renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-
-		}
+		//Getting the windows.
 		
+		Main_Renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
 	}
-	return succes;
+	
+return succes;
 }
 
 void close() {
+	//free loaded images
+	SDL_DestroyTexture(Background_Texture);
+	Background_Texture = nullptr;
 	//Destroy window
 	SDL_DestroyWindow(window);
+	SDL_DestroyRenderer(Main_Renderer);
+	window = nullptr;
+	Main_Renderer = nullptr;
 	//Quit from SDL subsystems
+	IMG_Quit();
 	SDL_Quit();
 }
 
@@ -67,8 +101,25 @@ bool Hit(SDL_Rect Shoot, SDL_Rect Objective) {
 
 int main(int argc, char* argv[]) {
 
-	SDL_Texture* Background_Tx;
-	SDL_Texture* Main_Ship;
+
+	SDL_Rect SrcR;
+	SDL_Rect DestR;
+	SDL_Rect Ship;
+
+	SrcR.x = 0;
+	SrcR.y = 0;
+	SrcR.w = SHAPE_SIZE;
+	SrcR.h = SHAPE_SIZE;
+
+	DestR.x = 640 / 2 - SHAPE_SIZE / 2;
+	DestR.y = 580 / 2 - SHAPE_SIZE / 2;
+	DestR.w = SHAPE_SIZE;
+	DestR.h = SHAPE_SIZE;
+
+
+	//------LOADING IMAGES-------------//
+
+
 	int Velocity = 3;
 	srand(9);
 	float timeCharging=0.0;
@@ -89,39 +140,15 @@ int main(int argc, char* argv[]) {
 	Uint32 rectColor;
 	Uint32 rectColorPickup;
 	Uint32 ShootColor;
-	SDL_Rect rect;
-	SDL_Rect rectPickup;
-	SDL_Rect Shoot;
 
-	rect.x = 200;
-	rect.y = 120+50;
-	rect.w = 40;
-	rect.h = 40;
-	Shoot.w = 30;
-	Shoot.h= 5;
-	rectPickup.x=rand()%SCREEN_WIDTH; //40
-	rectPickup.y = rand() % SCREEN_HEIGHT; //40
-	rectPickup.w = 30;
-	rectPickup.h = 30;
 
-	//handle events on queue
+	//start up SDL and create a window
 
-		//start up SDL and create a window
-	
 	init();
-
-		//fill the surface blue
-		SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, BLUE));
-		//UPdate the surface ( we have to do this every time we want to draw something in screen)
-
-		rectColor = SDL_MapRGB(screenSurface->format, RED);
-		rectColorPickup = SDL_MapRGB(screenSurface->format, GREEN);
-		ShootColor = SDL_MapRGB(screenSurface->format, GREEN);
-		SDL_FillRect(screenSurface, &Shoot, ShootColor);
-		SDL_FillRect(screenSurface, &rect, rectColor);
-
-	
-
+	loadMedia();
+	if (!loadMedia) {
+		quit = true;
+	}
 	while(!quit){
 
 			while (SDL_PollEvent(&e) != 0) // This gets an event so this will happens until SDLQUIT(in this case pres the x button) happens)
@@ -131,7 +158,7 @@ int main(int argc, char* argv[]) {
 					quit = true;
 				}
 
-				if (e.type == SDL_KEYDOWN) {
+				/*if (e.type == SDL_KEYDOWN) {
 
 					switch (e.key.keysym.sym)
 					{
@@ -223,8 +250,7 @@ int main(int argc, char* argv[]) {
 					Shooting = false;
 			}
 			if (ChargeShot&&ePress) {	
-				Shoot.w = 30;
-				Shoot.h = 5;
+
 				Shoot.x = rect.x + rect.w;
 				Shoot.y = rect.y + (rect.h / 2);
 				if(!Charged||Shoot.w<=70||Shoot.h<=70) {
@@ -246,19 +272,16 @@ int main(int argc, char* argv[]) {
 			}
 			else {
 			
-				timeCharging = 0.0;
+				timeCharging = 0.0;*/
 			
 			}
-	
+		
 			//Updating the windows surface.
-	
-			SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, BLUE));
-			SDL_FillRect(screenSurface, &rect, rectColor);
-			SDL_FillRect(screenSurface, &rectPickup, rectColorPickup);
-			SDL_FillRect(screenSurface, &Shoot, ShootColor);
-			SDL_UpdateWindowSurface(window);
-			SDL_Delay(10);
-			
+			SDL_RenderClear(Main_Renderer);
+			SDL_RenderCopy(Main_Renderer, Background_Texture, NULL, NULL);
+			SDL_RenderCopy(Main_Renderer, Player_shipTexture,&SrcR,&DestR);
+			SDL_RenderPresent(Main_Renderer);
+			SDL_Delay(0.1);
 	}	
 	close();
 
