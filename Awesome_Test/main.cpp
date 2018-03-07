@@ -2,13 +2,13 @@
 #include "SDL\include\SDL.h"
 #include <iostream>
 #include "SDL_image\include\SDL_image.h"
-
-
+#include"SDL_Text\include\SDL_ttf.h"
 
 #include "Colors.h"
 #pragma comment(lib,"SDL/libx86/SDL2.lib")
 #pragma comment(lib,"SDL/libx86/SDL2main.lib")
 #pragma comment(lib,"SDL_image/libx86/SDL2_image.lib")
+#pragma comment(lib,"SDL_Text/libx86/SDL2_ttf.lib")
 #define SHAPE_SIZE 100
 #define PLSHOOT 30
 
@@ -21,10 +21,20 @@ SDL_Texture* Background_Texture=nullptr;
 SDL_Texture* Player_shipTexture = nullptr;
 SDL_Texture* Enemy_shipTexture = nullptr;
 SDL_Texture* Shoot_Texture = nullptr;
+SDL_Texture* Score = nullptr;
+TTF_Font* Oceanic = TTF_OpenFont("Text/arial.ttf",24);
 
 
+SDL_Texture* Update_Text(std::string path) {
 
+	SDL_Texture* new_Text = nullptr;
+	SDL_Color White = { 255,255,255 };
+	SDL_Surface* SurfaceMessage = TTF_RenderText_Solid(Oceanic,path.c_str(), White);
+	new_Text = SDL_CreateTextureFromSurface(Main_Renderer, SurfaceMessage);
+	SDL_FreeSurface(SurfaceMessage);
+	return new_Text;
 
+}
 
 SDL_Texture* loadTexture(std::string path){
 
@@ -46,7 +56,7 @@ bool loadMedia() {
 	Background_Texture = loadTexture("Images/Background.png");
 	Player_shipTexture = loadTexture("Images/Player_Ship.png");
 	Enemy_shipTexture = loadTexture("Images/Enemy_Ship.png");
-
+	Score = Update_Text("Score");
 	if (Background_Texture == NULL || Player_shipTexture == NULL || Enemy_shipTexture == NULL||Shoot_Texture==NULL) {
 	succes = false;
 	}
@@ -130,7 +140,7 @@ int main(int argc, char* argv[]) {
 	srand(9);
 	float timeCharging=0.0;
 	bool ChargeShot = false;
-	bool EnemyMoving = true;
+	bool EnemyAlive= false;
 	bool Charged = false;
 	bool ePress = false;
 	bool Up = false;
@@ -147,8 +157,15 @@ int main(int argc, char* argv[]) {
 
 
 	SDL_Event e;
+	//SDL_Color White = { 255,255,255 };
+	//SDL_Surface* ScoreMessage = TTF_RenderText_Solid(Oceanic,"Score",White);
 
 
+	SDL_Rect Message_rect; //create a rect
+	Message_rect.x = 0;  //controls the rect's x coordinate 
+	Message_rect.y = 0; // controls the rect's y coordinte
+	Message_rect.w = 100; // controls the width of the rect
+	Message_rect.h = 100; // controls the height of the rect
 
 	//start up SDL and create a window
 
@@ -249,8 +266,9 @@ int main(int argc, char* argv[]) {
 				if (Shoot.x < SCREEN_WIDTH) {
 					Shoot.x += 8;
 					if (Hit(Shoot, Enemy) == true) {
-						Enemy.x = SCREEN_WIDTH;
+					
 						Enemy.y = rand() % (SCREEN_HEIGHT - 100);
+						EnemyAlive = false;
 						//Shoot.x=-200;
 						//Shoot.y =-200;
 					}
@@ -259,12 +277,16 @@ int main(int argc, char* argv[]) {
 				else
 					Shooting = false;
 			}
-			if(EnemyMoving) {
+			if(EnemyAlive) {
 				Enemy.x -= 1;
 				if (Enemy.x < 0 - Enemy.w) {
 					Enemy.x = SCREEN_WIDTH;
 					Enemy.y = rand() % (SCREEN_HEIGHT - 100);
 				}
+			}
+			else {
+				Enemy.x = SCREEN_WIDTH;
+				EnemyAlive = true;
 			}
 			
 			/*
@@ -301,6 +323,7 @@ int main(int argc, char* argv[]) {
 			SDL_RenderCopy(Main_Renderer,Player_shipTexture,NULL, &Ship);
 			SDL_RenderCopy(Main_Renderer, Shoot_Texture, NULL, &Shoot);
 			SDL_RenderCopy(Main_Renderer, Enemy_shipTexture, NULL, &Enemy);
+			SDL_RenderCopy(Main_Renderer, Score, NULL, &Message_rect);
 			SDL_RenderPresent(Main_Renderer);
 			SDL_Delay(2);
 
