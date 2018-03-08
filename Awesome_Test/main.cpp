@@ -14,6 +14,7 @@
 #define PLSHOOT 30
 #define SCORE_SIZEX 150
 #define SCORE_SIZEY 50
+
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 const int NUMBERS_SHEET= 10;
@@ -56,6 +57,7 @@ SDL_Texture* loadTexture(std::string path){
 }
 
 bool loadMedia() {
+
 	bool succes = true;
 	Shoot_Texture = loadTexture("Images/Plasma_Shoot.png");
 	Background_Texture = loadTexture("Images/Background.png");
@@ -94,6 +96,20 @@ bool init() {
 	}
 	
 return succes;
+}
+
+void Draw(SDL_Rect Enemy, SDL_Rect Ship, SDL_Rect Shoot, SDL_Rect Score,SDL_Rect Num_1, SDL_Rect Num_2,  SDL_Rect Num_3, SDL_Rect Num_4,SDL_Rect NumClipper[],int SpriteColumn1, int SpriteColumn2, int SpriteColumn3, int PosSprite) {
+	SDL_RenderClear(Main_Renderer);
+	SDL_RenderCopy(Main_Renderer, Background_Texture, NULL, NULL);
+	SDL_RenderCopy(Main_Renderer, Player_shipTexture, NULL, &Ship);
+	SDL_RenderCopy(Main_Renderer, Shoot_Texture, NULL, &Shoot);
+	SDL_RenderCopy(Main_Renderer, Enemy_shipTexture, NULL, &Enemy);
+	SDL_RenderCopy(Main_Renderer, Score_Texture, NULL, &Score);
+	SDL_RenderCopy(Main_Renderer, Numbers_Texture, &NumClipper[SpriteColumn3], &Num_1);
+	SDL_RenderCopy(Main_Renderer, Numbers_Texture, &NumClipper[SpriteColumn2], &Num_2);
+	SDL_RenderCopy(Main_Renderer, Numbers_Texture, &NumClipper[SpriteColumn1], &Num_3);
+	SDL_RenderCopy(Main_Renderer, Numbers_Texture, &NumClipper[PosSprite], &Num_4);
+	SDL_RenderPresent(Main_Renderer);
 }
 
 void close() {
@@ -205,6 +221,7 @@ int main(int argc, char* argv[]) {
 	int SpriteColumn4=0;
 
 	srand(9);
+
 	float timeCharging=0.0;
 	bool ChargeShot = false;
 	bool EnemyAlive= false;
@@ -220,19 +237,14 @@ int main(int argc, char* argv[]) {
 	bool quit = false;
 	bool collx = false;
 	bool colly = false;
-	int colorVar = 0;
-
 
 	SDL_Event e;
-
-
 
 	SDL_Rect Message_rect; //create a rect
 	Message_rect.x = 0;  //controls the rect's x coordinate 
 	Message_rect.y = 0; // controls the rect's y coordinte
 	Message_rect.w = 100; // controls the width of the rect
 	Message_rect.h = 100; // controls the height of the rect
-
 
 
 	//start up SDL and create a window
@@ -244,7 +256,6 @@ int main(int argc, char* argv[]) {
 	if (!loadMedia||!init) {
 		quit = true;
 	}
-
 	while(!quit){
 
 			while (SDL_PollEvent(&e) != 0) // This gets an event so this will happens until SDLQUIT(in this case pres the x button) happens)
@@ -336,7 +347,7 @@ int main(int argc, char* argv[]) {
 
 				if (Shoot.x < SCREEN_WIDTH) {
 					Shoot.x += 8;
-					if (Hit(Shoot, Enemy) == true) {
+					if (Hit(Shoot, Enemy) == true&&Enemy.x<SCREEN_WIDTH-40) {
 						
 						PosSprite++;
 						if (PosSprite > 9) {
@@ -403,17 +414,9 @@ int main(int argc, char* argv[]) {
 			}*/
 		
 			//Updating the windows surface.
-			SDL_RenderClear(Main_Renderer);
-			SDL_RenderCopy(Main_Renderer, Background_Texture, NULL, NULL);
-			SDL_RenderCopy(Main_Renderer,Player_shipTexture,NULL, &Ship);
-			SDL_RenderCopy(Main_Renderer, Shoot_Texture, NULL, &Shoot);
-			SDL_RenderCopy(Main_Renderer, Enemy_shipTexture, NULL, &Enemy);
-			SDL_RenderCopy(Main_Renderer, Score_Texture, NULL, &Score);
-			SDL_RenderCopy(Main_Renderer, Numbers_Texture, &NumClipper[SpriteColumn3], &Num_1);
-			SDL_RenderCopy(Main_Renderer, Numbers_Texture, &NumClipper[SpriteColumn2], &Num_2);
-			SDL_RenderCopy(Main_Renderer, Numbers_Texture, &NumClipper[SpriteColumn1], &Num_3);
-			SDL_RenderCopy(Main_Renderer, Numbers_Texture, &NumClipper[PosSprite], &Num_4);
-			SDL_RenderPresent(Main_Renderer);
+
+			Draw(Enemy,Ship,Shoot,Score,Num_1,Num_2,Num_3,Num_4,NumClipper,SpriteColumn1,SpriteColumn2,SpriteColumn3,PosSprite);
+
 			SDL_Delay(2);
 
 	}	
@@ -423,47 +426,3 @@ int main(int argc, char* argv[]) {
 }
 
 
-//	
-//	//Change the color of the pickups and the Main block and respawn.
-//	for (int i = rect.x; i < rect.x + 150; ++i) {
-//		for (int j = rect.y; j < rect.y + 150; ++j) {
-//			if ((i >= rectPickup.x && i <= rectPickup.x + rectPickup.w) && (j >= rectPickup.y && j <= rectPickup.y + rectPickup.h)) {
-//				rectColor = rectColorPickup;
-//				rectPickup.x = rand() % 500 + 20;
-//				rectPickup.y = rand() % 300 + 20;
-//				colorVar = rand() % 10;
-//				if (colorVar == 0) {
-//					rectColorPickup = SDL_MapRGB(screenSurface->format, RED);
-//				}
-//				else if (colorVar == 1) {
-//					rectColorPickup = SDL_MapRGB(screenSurface->format, BLACK);
-//				}	
-//				else if (colorVar == 2) {
-//					rectColorPickup = SDL_MapRGB(screenSurface->format, WHITE);
-//				}
-//				else if (colorVar == 3) {
-//					rectColorPickup = SDL_MapRGB(screenSurface->format, YELLOW);
-//				}
-//				else if (colorVar == 4) {
-//					rectColorPickup = SDL_MapRGB(screenSurface->format, GREEN);
-//				}
-//				else if (colorVar == 5) {
-//					rectColorPickup = SDL_MapRGB(screenSurface->format, MAGENTA);
-//				}
-//				else if (colorVar == 6) {
-//					rectColorPickup = SDL_MapRGB(screenSurface->format, CYAN);
-//				}
-//				else if (colorVar == 7) {
-//					rectColorPickup = SDL_MapRGB(screenSurface->format, PINK);
-//				}
-//				else if (colorVar == 8) {
-//					rectColorPickup = SDL_MapRGB(screenSurface->format, BROWN);
-//				}
-//				else if (colorVar == 9) {
-//					rectColorPickup = SDL_MapRGB(screenSurface->format, ORANGE);
-//				}	
-//			
-//				break;
-//			}
-//		}
-//}
