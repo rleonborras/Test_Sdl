@@ -1,14 +1,14 @@
 
 #include "SDL\include\SDL.h"
-#include <iostream>
 #include "SDL_image\include\SDL_image.h"
 #include"SDL_Text\include\SDL_ttf.h"
+#include"SDL_Mixer\include\SDL_mixer.h"
 
-#include "Colors.h"
 #pragma comment(lib,"SDL/libx86/SDL2.lib")
 #pragma comment(lib,"SDL/libx86/SDL2main.lib")
 #pragma comment(lib,"SDL_image/libx86/SDL2_image.lib")
 #pragma comment(lib,"SDL_Text/libx86/SDL2_ttf.lib")
+#pragma comment(lib,"SDL_Mixer/libx86/SDL2_mixer.lib")
 
 #define SHAPE_SIZE 100
 #define PLSHOOT 30
@@ -31,7 +31,7 @@ SDL_Texture* Numbers_Texture = nullptr;
 TTF_Font* Oceanic = TTF_OpenFont("Text/arial.ttf",24);
 
 
-SDL_Texture* Update_Text(std::string path) {
+SDL_Texture* Update_Text(const char* filename) {
 
 	SDL_Texture* new_Text = nullptr;
 	SDL_Color White = { 255,255,255 };
@@ -42,13 +42,13 @@ SDL_Texture* Update_Text(std::string path) {
 
 }
 
-SDL_Texture* loadTexture(std::string path){
+SDL_Texture* loadTexture(const char* filename){
 
 	//Final Texture
 	SDL_Texture* newTexture = nullptr;
 
 	//Load image from path
-	SDL_Surface* loadedSurface = IMG_Load(path.c_str());
+	SDL_Surface* loadedSurface = IMG_Load(filename);
 	newTexture = SDL_CreateTextureFromSurface(Main_Renderer, loadedSurface);
 	//Delete the old loaded surface;
 	SDL_FreeSurface(loadedSurface);
@@ -66,7 +66,7 @@ bool loadMedia() {
 	Score_Texture = loadTexture("Text/Score.png");
 	Numbers_Texture = loadTexture("Text/Numbers.png");
 
-	if (Background_Texture == NULL || Player_shipTexture == NULL || Enemy_shipTexture == NULL||Shoot_Texture==NULL) {
+	if (Background_Texture == NULL || Player_shipTexture == NULL || Enemy_shipTexture == NULL||Shoot_Texture==NULL||Score_Texture==NULL||Numbers_Texture==NULL) {
 	succes = false;
 	}
 
@@ -151,6 +151,10 @@ void SpriteSheet(SDL_Rect Sprite[]) {
 
 int main(int argc, char* argv[]) {
 
+
+	SDL_bool Intersect();
+
+
 	SDL_Rect Ship;
 	SDL_Rect Shoot;
 	SDL_Rect Enemy;
@@ -188,19 +192,19 @@ int main(int argc, char* argv[]) {
 
 	Score.w = SCORE_SIZEX;
 	Score.h = SCORE_SIZEY;
-	Score.x = NULL;
-	Score.y = NULL;
+	Score.x = 0;
+	Score.y = 0;
 
 
 	Shoot.w = PLSHOOT;
 	Shoot.h = PLSHOOT;
-	Shoot.x = NULL;
-	Shoot.y = NULL;
+	Shoot.x = 0;
+	Shoot.y = 0;
 
 	Score.w = SCORE_SIZEX;
 	Score.h = SCORE_SIZEY;
-	Score.x = NULL;
-	Score.y = NULL;
+	Score.x = 0;
+	Score.y = 0;
 
 	Ship.x = 200;
 	Ship.y = 200;
