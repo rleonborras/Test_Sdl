@@ -1,13 +1,12 @@
 
 #include "SDL\include\SDL.h"
+#include <iostream>
 #include "SDL_image\include\SDL_image.h"
-#include"SDL_Text\include\SDL_ttf.h"
 #include"SDL_Mixer\include\SDL_mixer.h"
 
 #pragma comment(lib,"SDL/libx86/SDL2.lib")
 #pragma comment(lib,"SDL/libx86/SDL2main.lib")
 #pragma comment(lib,"SDL_image/libx86/SDL2_image.lib")
-#pragma comment(lib,"SDL_Text/libx86/SDL2_ttf.lib")
 #pragma comment(lib,"SDL_Mixer/libx86/SDL2_mixer.lib")
 
 #define SHAPE_SIZE 100
@@ -28,19 +27,6 @@ SDL_Texture* Enemy_shipTexture = nullptr;
 SDL_Texture* Shoot_Texture = nullptr;
 SDL_Texture* Score_Texture = nullptr;
 SDL_Texture* Numbers_Texture = nullptr;
-TTF_Font* Oceanic = TTF_OpenFont("Text/arial.ttf",24);
-
-
-SDL_Texture* Update_Text(const char* filename) {
-
-	SDL_Texture* new_Text = nullptr;
-	SDL_Color White = { 255,255,255 };
-	SDL_Surface* SurfaceMessage = TTF_RenderText_Solid(Oceanic,path.c_str(), White);
-	new_Text = SDL_CreateTextureFromSurface(Main_Renderer, SurfaceMessage);
-	SDL_FreeSurface(SurfaceMessage);
-	return new_Text;
-
-}
 
 SDL_Texture* loadTexture(const char* filename){
 
@@ -151,9 +137,9 @@ void SpriteSheet(SDL_Rect Sprite[]) {
 
 int main(int argc, char* argv[]) {
 
+	srand(9);
 
-	SDL_bool Intersect();
-
+	//-----------DECLARING SLD VARIABLES-----------//
 
 	SDL_Rect Ship;
 	SDL_Rect Shoot;
@@ -164,6 +150,9 @@ int main(int argc, char* argv[]) {
 	SDL_Rect Num_2;
 	SDL_Rect Num_3;
 	SDL_Rect Num_4;
+	SDL_Event e;
+
+	//---------------INITIALIZINF VARIABLES--------//
 
 	NumClipper[0].x = 0;
 	NumClipper[0].y = 0;
@@ -216,6 +205,7 @@ int main(int argc, char* argv[]) {
 	Enemy.w = SHAPE_SIZE;
 	Enemy.h = SHAPE_SIZE;
 
+	//----- DECLARING LOGIC OPERANDS-------//
 
 	int Velocity = 1;
 	int PosSprite=0;
@@ -224,7 +214,7 @@ int main(int argc, char* argv[]) {
 	int SpriteColumn3=0;
 	int SpriteColumn4=0;
 
-	srand(9);
+
 
 	float timeCharging=0.0;
 	bool ChargeShot = false;
@@ -242,13 +232,6 @@ int main(int argc, char* argv[]) {
 	bool collx = false;
 	bool colly = false;
 
-	SDL_Event e;
-
-	SDL_Rect Message_rect; //create a rect
-	Message_rect.x = 0;  //controls the rect's x coordinate 
-	Message_rect.y = 0; // controls the rect's y coordinte
-	Message_rect.w = 100; // controls the width of the rect
-	Message_rect.h = 100; // controls the height of the rect
 
 
 	//start up SDL and create a window
