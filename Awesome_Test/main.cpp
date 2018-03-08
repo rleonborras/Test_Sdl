@@ -9,11 +9,15 @@
 #pragma comment(lib,"SDL/libx86/SDL2main.lib")
 #pragma comment(lib,"SDL_image/libx86/SDL2_image.lib")
 #pragma comment(lib,"SDL_Text/libx86/SDL2_ttf.lib")
+
 #define SHAPE_SIZE 100
 #define PLSHOOT 30
-
+#define SCORE_SIZEX 150
+#define SCORE_SIZEY 50
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
+const int NUMBERS_SHEET= 10;
+
 
 SDL_Window* window = nullptr;
 SDL_Renderer* Main_Renderer=nullptr;
@@ -21,7 +25,8 @@ SDL_Texture* Background_Texture=nullptr;
 SDL_Texture* Player_shipTexture = nullptr;
 SDL_Texture* Enemy_shipTexture = nullptr;
 SDL_Texture* Shoot_Texture = nullptr;
-SDL_Texture* Score = nullptr;
+SDL_Texture* Score_Texture = nullptr;
+SDL_Texture* Numbers_Texture = nullptr;
 TTF_Font* Oceanic = TTF_OpenFont("Text/arial.ttf",24);
 
 
@@ -56,10 +61,13 @@ bool loadMedia() {
 	Background_Texture = loadTexture("Images/Background.png");
 	Player_shipTexture = loadTexture("Images/Player_Ship.png");
 	Enemy_shipTexture = loadTexture("Images/Enemy_Ship.png");
-	Score = Update_Text("Score");
+	Score_Texture = loadTexture("Text/Score.png");
+	Numbers_Texture = loadTexture("Text/Numbers.png");
+
 	if (Background_Texture == NULL || Player_shipTexture == NULL || Enemy_shipTexture == NULL||Shoot_Texture==NULL) {
 	succes = false;
 	}
+
 	return succes;
 }
 
@@ -114,16 +122,69 @@ bool Hit(SDL_Rect Shoot, SDL_Rect Objective) {
 	return false;
 }
 
+void SpriteSheet(SDL_Rect Sprite[]) {
+
+	for (int i = 1; i < NUMBERS_SHEET; ++i) {
+		Sprite[i].x = Sprite[i-1].x+73;
+		Sprite[i].y = 0;
+		Sprite[i].w = 73;
+		Sprite[i].h =102;
+	}
+
+}
+
 int main(int argc, char* argv[]) {
 
 	SDL_Rect Ship;
 	SDL_Rect Shoot;
 	SDL_Rect Enemy;
+	SDL_Rect Score;
+	SDL_Rect NumClipper[NUMBERS_SHEET];
+	SDL_Rect Num_1;
+	SDL_Rect Num_2;
+	SDL_Rect Num_3;
+	SDL_Rect Num_4;
+
+	NumClipper[0].x = 0;
+	NumClipper[0].y = 0;
+	NumClipper[0].w = 73;
+	NumClipper[0].h = 102;
+
+	Num_1.x = 150;
+	Num_1.y = 0;
+	Num_1.w = 30;
+	Num_1.h = 50;
+
+	Num_2.x = 180;
+	Num_2.y = 0;
+	Num_2.w = 30;
+	Num_2.h = 50;
+
+	Num_3.x = 210;
+	Num_3.y = 0;
+	Num_3.w = 30;
+	Num_3.h = 50;
+
+	Num_4.x = 240;
+	Num_4.y = 0;
+	Num_4.w = 30;
+	Num_4.h = 50;
+
+	Score.w = SCORE_SIZEX;
+	Score.h = SCORE_SIZEY;
+	Score.x = NULL;
+	Score.y = NULL;
+
+
 	Shoot.w = PLSHOOT;
 	Shoot.h = PLSHOOT;
 	Shoot.x = NULL;
 	Shoot.y = NULL;
-	
+
+	Score.w = SCORE_SIZEX;
+	Score.h = SCORE_SIZEY;
+	Score.x = NULL;
+	Score.y = NULL;
 
 	Ship.x = 200;
 	Ship.y = 200;
@@ -137,6 +198,12 @@ int main(int argc, char* argv[]) {
 
 
 	int Velocity = 1;
+	int PosSprite=0;
+	int SpriteColumn1=0;
+	int SpriteColumn2=0;
+	int SpriteColumn3=0;
+	int SpriteColumn4=0;
+
 	srand(9);
 	float timeCharging=0.0;
 	bool ChargeShot = false;
@@ -157,8 +224,7 @@ int main(int argc, char* argv[]) {
 
 
 	SDL_Event e;
-	//SDL_Color White = { 255,255,255 };
-	//SDL_Surface* ScoreMessage = TTF_RenderText_Solid(Oceanic,"Score",White);
+
 
 
 	SDL_Rect Message_rect; //create a rect
@@ -167,13 +233,18 @@ int main(int argc, char* argv[]) {
 	Message_rect.w = 100; // controls the width of the rect
 	Message_rect.h = 100; // controls the height of the rect
 
-	//start up SDL and create a window
 
+
+	//start up SDL and create a window
 	init();
 	loadMedia();
+
+	SpriteSheet(NumClipper);
+
 	if (!loadMedia||!init) {
 		quit = true;
 	}
+
 	while(!quit){
 
 			while (SDL_PollEvent(&e) != 0) // This gets an event so this will happens until SDLQUIT(in this case pres the x button) happens)
@@ -266,7 +337,20 @@ int main(int argc, char* argv[]) {
 				if (Shoot.x < SCREEN_WIDTH) {
 					Shoot.x += 8;
 					if (Hit(Shoot, Enemy) == true) {
-					
+						
+						PosSprite++;
+						if (PosSprite > 9) {
+							PosSprite = 0;
+							SpriteColumn1++;
+							if (SpriteColumn1 > 9) {
+								SpriteColumn1 = 0;
+								SpriteColumn2++;
+								if (SpriteColumn3 > 9) {
+									SpriteColumn3 = 0;
+
+								}
+							}
+						}
 						Enemy.y = rand() % (SCREEN_HEIGHT - 100);
 						EnemyAlive = false;
 						//Shoot.x=-200;
@@ -282,6 +366,7 @@ int main(int argc, char* argv[]) {
 				if (Enemy.x < 0 - Enemy.w) {
 					Enemy.x = SCREEN_WIDTH;
 					Enemy.y = rand() % (SCREEN_HEIGHT - 100);
+				
 				}
 			}
 			else {
@@ -323,7 +408,11 @@ int main(int argc, char* argv[]) {
 			SDL_RenderCopy(Main_Renderer,Player_shipTexture,NULL, &Ship);
 			SDL_RenderCopy(Main_Renderer, Shoot_Texture, NULL, &Shoot);
 			SDL_RenderCopy(Main_Renderer, Enemy_shipTexture, NULL, &Enemy);
-			SDL_RenderCopy(Main_Renderer, Score, NULL, &Message_rect);
+			SDL_RenderCopy(Main_Renderer, Score_Texture, NULL, &Score);
+			SDL_RenderCopy(Main_Renderer, Numbers_Texture, &NumClipper[SpriteColumn3], &Num_1);
+			SDL_RenderCopy(Main_Renderer, Numbers_Texture, &NumClipper[SpriteColumn2], &Num_2);
+			SDL_RenderCopy(Main_Renderer, Numbers_Texture, &NumClipper[SpriteColumn1], &Num_3);
+			SDL_RenderCopy(Main_Renderer, Numbers_Texture, &NumClipper[PosSprite], &Num_4);
 			SDL_RenderPresent(Main_Renderer);
 			SDL_Delay(2);
 
