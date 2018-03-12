@@ -16,7 +16,7 @@ SDL_Texture* TryAgain_Texture = nullptr;
 SDL_Texture* Yes_texture = nullptr;
 SDL_Texture* No_Texture = nullptr;
 SDL_Texture* Selector_texture = nullptr;
-
+SDL_Texture* Impulsor_Texture = nullptr;
 
 SDL_Texture* loadTexture(const char* filename) {
 
@@ -48,6 +48,8 @@ bool loadMedia() {
 	Yes_texture = loadTexture("Text/YES.png");
 	No_Texture = loadTexture("Text/NO.png");
 	Selector_texture = loadTexture("Text/Selector.png");
+	Impulsor_Texture = loadTexture("Images/Impuls.png");
+
 
 	if (Background_Texture == NULL || Player_shipTexture == NULL || Enemy_shipTexture == NULL || Shoot_Texture == NULL || Score_Texture == NULL || Numbers_Texture == NULL) {
 		succes = false;

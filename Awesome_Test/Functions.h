@@ -26,12 +26,13 @@ bool init() {
 	return succes;
 }
 
-void Draw(int SpriteColumn1, int SpriteColumn2, int SpriteColumn3, int PosSprite, int Menuout) {
+void Draw(int SpriteColumn1, int SpriteColumn2, int SpriteColumn3, int PosSprite, int Menuout,int frames) {
 
 	SDL_RenderClear(Main_Renderer);
 
 	SDL_RenderCopy(Main_Renderer, Background_Texture, NULL, &Background);
 	SDL_RenderCopy(Main_Renderer, Background_Texture, NULL, &Background2);
+	SDL_RenderCopy(Main_Renderer, Impulsor_Texture, &Impulsor_Clipping[frames/4], &Impulsor);
 	SDL_RenderCopy(Main_Renderer, Player_shipTexture, NULL, &Ship);
 	SDL_RenderCopy(Main_Renderer, Shoot_Texture, NULL, &Shoot);
 	SDL_RenderCopy(Main_Renderer, Enemy_shipTexture, NULL, &Enemy);

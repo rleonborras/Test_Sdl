@@ -10,7 +10,7 @@
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 const int NUMBERS_SHEET = 10;
-
+const int ANIM_FRAMES = 5;
 SDL_Event e;
 
 
@@ -36,8 +36,42 @@ SDL_Rect TryAgain;
 SDL_Rect Yes;
 SDL_Rect No;
 SDL_Rect Selector;
+SDL_Rect Impulsor;
+SDL_Rect Impulsor_Clipping[ANIM_FRAMES];
+
 
 void Set_Initial_States() {
+
+	Impulsor.x=NULL;
+	Impulsor.y = NULL;
+	Impulsor.w=190;
+	Impulsor.h = 40;
+
+	Impulsor_Clipping[0].x = 0;
+	Impulsor_Clipping[0].y = 0;
+	Impulsor_Clipping[0].w = 266;
+	Impulsor_Clipping[0].h = 133;
+
+	Impulsor_Clipping[1].x = 266;
+	Impulsor_Clipping[1].y = 0;
+	Impulsor_Clipping[1].w = 266;
+	Impulsor_Clipping[1].h = 133;
+
+	Impulsor_Clipping[2].x = 532;
+	Impulsor_Clipping[2].y = 0;
+	Impulsor_Clipping[2].w = 266;
+	Impulsor_Clipping[2].h = 133;
+
+	Impulsor_Clipping[3].x = 798;
+	Impulsor_Clipping[3].y = 0;
+	Impulsor_Clipping[3].w = 266;
+	Impulsor_Clipping[3].h = 133;
+
+	Impulsor_Clipping[4].x = 1064;
+	Impulsor_Clipping[4].y = 0;
+	Impulsor_Clipping[4].w = 266;
+	Impulsor_Clipping[4].h = 133;
+
 
 	Background.x = 0;
 	Background.y = 0;

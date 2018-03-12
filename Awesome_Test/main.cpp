@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
 	srand(9);
 
 	//----- DECLARING LOGIC OPERANDS-------//
-
+	int frames = 0;
 	int Velocity = 5;
 	int VelocityShoot = 20;
 	int VelocityShootEnemy = 10;
@@ -134,6 +134,8 @@ int main(int argc, char* argv[]) {
 				}
 			}
 			if (Alive) {
+				Impulsor.x = Ship.x-135;
+				Impulsor.y = Ship.y;
 				if (Left && (Ship.x >= 0)) {
 					Ship.x -= Velocity;
 				}
@@ -172,7 +174,6 @@ int main(int argc, char* argv[]) {
 									SpriteColumn2++;
 									if (SpriteColumn3 > 9) {
 										SpriteColumn3 = 0;
-
 									}
 								}
 							}
@@ -194,7 +195,6 @@ int main(int argc, char* argv[]) {
 							}
 							Shoot.x = OUTSCREEN;
 						}
-
 					}
 					else
 						Shooting = false;
@@ -294,6 +294,10 @@ int main(int argc, char* argv[]) {
 				if (Background2.x <= 0 - SCREEN_WIDTH) {
 					Background2.x = SCREEN_WIDTH;
 				}
+				frames++;
+				if (frames / 4 >= ANIM_FRAMES) {
+					frames = 0;
+				}
 			}
 			else {
 				MenuOut = true;
@@ -319,7 +323,7 @@ int main(int argc, char* argv[]) {
 		
 			//Updating the windows surface.
 
-			Draw(SpriteColumn1, SpriteColumn2, SpriteColumn3, PosSprite,MenuOut);
+			Draw(SpriteColumn1, SpriteColumn2, SpriteColumn3, PosSprite,MenuOut,frames);
 
 			SDL_Delay(12);
 
