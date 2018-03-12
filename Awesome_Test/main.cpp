@@ -13,6 +13,7 @@
 #define PLSHOOT 30
 #define SCORE_SIZEX 150
 #define SCORE_SIZEY 50
+#define OUTSCREEN 800
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -27,6 +28,8 @@ SDL_Texture* Enemy_shipTexture = nullptr;
 SDL_Texture* Shoot_Texture = nullptr;
 SDL_Texture* Score_Texture = nullptr;
 SDL_Texture* Numbers_Texture = nullptr;
+SDL_Texture* Enemy2_shipTexture = nullptr;
+SDL_Texture* Enemy2_ShotTexture = nullptr;
 
 SDL_Texture* loadTexture(const char* filename){
 
@@ -51,6 +54,8 @@ bool loadMedia() {
 	Enemy_shipTexture = loadTexture("Images/Enemy_Ship.png");
 	Score_Texture = loadTexture("Text/Score.png");
 	Numbers_Texture = loadTexture("Text/Numbers.png");
+	Enemy2_shipTexture = loadTexture("Images/Enemy_2.png");
+	Enemy2_ShotTexture = loadTexture("Images/Shot_enemy.png");
 
 	if (Background_Texture == NULL || Player_shipTexture == NULL || Enemy_shipTexture == NULL||Shoot_Texture==NULL||Score_Texture==NULL||Numbers_Texture==NULL) {
 	succes = false;
@@ -84,12 +89,17 @@ bool init() {
 return succes;
 }
 
-void Draw(SDL_Rect Enemy, SDL_Rect Ship, SDL_Rect Shoot, SDL_Rect Score,SDL_Rect Num_1, SDL_Rect Num_2,  SDL_Rect Num_3, SDL_Rect Num_4,SDL_Rect NumClipper[],int SpriteColumn1, int SpriteColumn2, int SpriteColumn3, int PosSprite) {
+void Draw(SDL_Rect Enemy,SDL_Rect Enemy2, SDL_Rect Background,SDL_Rect Background2, SDL_Rect Ship, SDL_Rect Shoot,SDL_Rect Enemy2Shoot, SDL_Rect Score, SDL_Rect Num_1, SDL_Rect Num_2, SDL_Rect Num_3, SDL_Rect Num_4, SDL_Rect NumClipper[], int SpriteColumn1, int SpriteColumn2, int SpriteColumn3, int PosSprite) {
+	
 	SDL_RenderClear(Main_Renderer);
-	SDL_RenderCopy(Main_Renderer, Background_Texture, NULL, NULL);
+
+	SDL_RenderCopy(Main_Renderer, Background_Texture, NULL, &Background);
+	SDL_RenderCopy(Main_Renderer, Background_Texture, NULL, &Background2);
 	SDL_RenderCopy(Main_Renderer, Player_shipTexture, NULL, &Ship);
 	SDL_RenderCopy(Main_Renderer, Shoot_Texture, NULL, &Shoot);
 	SDL_RenderCopy(Main_Renderer, Enemy_shipTexture, NULL, &Enemy);
+	SDL_RenderCopy(Main_Renderer, Enemy2_shipTexture, NULL, &Enemy2);
+	SDL_RenderCopy(Main_Renderer, Enemy2_ShotTexture, NULL, &Enemy2Shoot);
 	SDL_RenderCopy(Main_Renderer, Score_Texture, NULL, &Score);
 	SDL_RenderCopy(Main_Renderer, Numbers_Texture, &NumClipper[SpriteColumn3], &Num_1);
 	SDL_RenderCopy(Main_Renderer, Numbers_Texture, &NumClipper[SpriteColumn2], &Num_2);
@@ -141,9 +151,13 @@ int main(int argc, char* argv[]) {
 
 	//-----------DECLARING SLD VARIABLES-----------//
 
+	SDL_Rect Background;
+	SDL_Rect Background2;
 	SDL_Rect Ship;
 	SDL_Rect Shoot;
 	SDL_Rect Enemy;
+	SDL_Rect Enemy2;
+	SDL_Rect Enemy2Shoot;
 	SDL_Rect Score;
 	SDL_Rect NumClipper[NUMBERS_SHEET];
 	SDL_Rect Num_1;
@@ -153,6 +167,16 @@ int main(int argc, char* argv[]) {
 	SDL_Event e;
 
 	//---------------INITIALIZINF VARIABLES--------//
+
+	Background.x = 0;
+	Background.y = 0;
+	Background.w = SCREEN_WIDTH;
+	Background.h = SCREEN_HEIGHT;
+
+	Background2.x = SCREEN_WIDTH;
+	Background2.y = 0;
+	Background2.w = SCREEN_WIDTH;
+	Background2.h = SCREEN_HEIGHT;
 
 	NumClipper[0].x = 0;
 	NumClipper[0].y = 0;
@@ -187,8 +211,8 @@ int main(int argc, char* argv[]) {
 
 	Shoot.w = PLSHOOT;
 	Shoot.h = PLSHOOT;
-	Shoot.x = 0;
-	Shoot.y = 0;
+	Shoot.x = OUTSCREEN;
+	Shoot.y = OUTSCREEN;
 
 	Score.w = SCORE_SIZEX;
 	Score.h = SCORE_SIZEY;
@@ -205,9 +229,20 @@ int main(int argc, char* argv[]) {
 	Enemy.w = SHAPE_SIZE;
 	Enemy.h = SHAPE_SIZE;
 
+	Enemy2.x = SCREEN_WIDTH;
+	Enemy2.y = 120;
+	Enemy2.w = SHAPE_SIZE;
+	Enemy2.h = SHAPE_SIZE/2;
+
+	Enemy2Shoot.x = OUTSCREEN;
+	Enemy2Shoot.y = OUTSCREEN;
+	Enemy2Shoot.w = PLSHOOT;
+	Enemy2Shoot.h = PLSHOOT;
+
 	//----- DECLARING LOGIC OPERANDS-------//
 
-	int Velocity = 1;
+	int Velocity = 5;
+	int VelocityShoot = 20;
 	int PosSprite=0;
 	int SpriteColumn1=0;
 	int SpriteColumn2=0;
@@ -219,6 +254,9 @@ int main(int argc, char* argv[]) {
 	float timeCharging=0.0;
 	bool ChargeShot = false;
 	bool EnemyAlive= false;
+	bool Enemy2Alive = false;
+	bool Enemy2reachedpoint = false;
+	bool Enemy2Shooting = false;
 	bool Charged = false;
 	bool ePress = false;
 	bool Up = false;
@@ -322,18 +360,11 @@ int main(int argc, char* argv[]) {
 					Shoot_Enabled=true;
 				}
 
-				/*		if (ePress&!ChargeShot) {
-					Shoot.x = rect.x + rect.w;
-					Shoot.y = rect.y + (rect.h / 2);
-					ChargeShot = true;
-					Shoot.w = 30;
-					Shoot.h = 5;
-				}
-			*/
+			
 			if (Shooting) {
 
 				if (Shoot.x < SCREEN_WIDTH) {
-					Shoot.x += 8;
+					Shoot.x += VelocityShoot;
 					if (Hit(Shoot, Enemy) == true&&Enemy.x<SCREEN_WIDTH-40) {
 						
 						PosSprite++;
@@ -359,8 +390,32 @@ int main(int argc, char* argv[]) {
 				else
 					Shooting = false;
 			}
+			if (Enemy2Alive) {
+				if (Enemy2.x >= 428) {
+					Enemy2.x-=Velocity;
+				}
+				else {
+					Enemy2reachedpoint = true;
+				}
+				if (Enemy2reachedpoint&&!Enemy2Shooting) {
+					Enemy2Shoot.x = Enemy2.x;
+					Enemy2Shoot.y = Enemy2.y + 10;
+					Enemy2Shooting = true;
+				}
+				if (Enemy2Shooting) {
+					Enemy2Shoot.x -= VelocityShoot;
+					if (Enemy2Shoot.x <= 0) {
+						Enemy2Shooting = false;
+					}
+				}
+			}
+			else {
+				Enemy.x = SCREEN_WIDTH;
+				Enemy2Alive = true;
+			}
+
 			if(EnemyAlive) {
-				Enemy.x -= 1;
+				Enemy.x -= Velocity;
 				if (Enemy.x < 0 - Enemy.w) {
 					Enemy.x = SCREEN_WIDTH;
 					Enemy.y = rand() % (SCREEN_HEIGHT - 100);
@@ -371,40 +426,20 @@ int main(int argc, char* argv[]) {
 				Enemy.x = SCREEN_WIDTH;
 				EnemyAlive = true;
 			}
-			
-			/*
-			if (ChargeShot&&ePress) {	
-
-				Shoot.x = rect.x + rect.w;
-				Shoot.y = rect.y + (rect.h / 2);
-				if(!Charged||Shoot.w<=70||Shoot.h<=70) {
-					Shoot.w += 1;
-					Shoot.h += 2;
-	
-					timeCharging += 0.1;
-					if (timeCharging >= 0.2)
-						Charged = true;
-				}
+			Background.x--;
+			if (Background.x <= 0-SCREEN_WIDTH) {
+				Background.x = SCREEN_WIDTH;
 			}
-			if (Charged||Shoot.x<SCREEN_WIDTH) {
-				Shoot.x += 25;
-				if (Hit(Shoot, rectPickup) == true) {
-					rectPickup.x = rand() % 541 + 100; //40
-					rectPickup.y = rand() % 380 + 100; //40
-				}
-			
+			Background2.x--;
+			if (Background2.x <= 0 - SCREEN_WIDTH) {
+				Background2.x = SCREEN_WIDTH;
 			}
-			else {
 			
-				timeCharging = 0.0;
-			
-			}*/
-		
 			//Updating the windows surface.
 
-			Draw(Enemy,Ship,Shoot,Score,Num_1,Num_2,Num_3,Num_4,NumClipper,SpriteColumn1,SpriteColumn2,SpriteColumn3,PosSprite);
+			Draw(Enemy, Enemy2, Background, Background2, Ship, Shoot,Enemy2Shoot, Score, Num_1, Num_2, Num_3, Num_4, NumClipper, SpriteColumn1, SpriteColumn2, SpriteColumn3, PosSprite);
 
-			SDL_Delay(2);
+			SDL_Delay(12);
 
 	}	
 	close();
